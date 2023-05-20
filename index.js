@@ -48,6 +48,12 @@ async function run() {
       console.log(toys)
       res.send(result)
     })
+
+    // data fetch from database and access form client side using get method 
+    app.get('/alltoys', async(req, res) => {
+      const result = await toyCollection.find().toArray()
+      res.send(result);
+    })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
