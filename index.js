@@ -6,7 +6,14 @@ require('dotenv').config()
 const port = process.env.PORT || 3000;
 
 // middleware 
-app.use(cors())
+app.use(cors());
+
+app.use(function(req, res, next) {
+   res.header("Access-Control-Allow-Origin", "*");
+   res.header('Access-Control-Allow-Methods', 'DELETE, PUT, GET, POST');
+   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+   next();
+});
 app.use(express.json())
 
 app.get('/', (req,res) => {
@@ -31,6 +38,16 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
+
+// database and collection created 
+    const toyCollection = client.db('toyHouseDB').collection("toyInfo");
+    // data inserted into database from client side 
+    app.post('/addtoys', async(req, res) => {
+      const toys = req.body;
+      const result = await toyCollection.insertOne(toys);
+      console.log(toys)
+      res.send(result)
+    })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
