@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express()
 require('dotenv').config()
 const port = process.env.PORT || 3000;
@@ -51,8 +51,15 @@ async function run() {
 
     // data fetch from database and access form client side using get method 
     app.get('/alltoys', async(req, res) => {
-      const result = await toyCollection.find().toArray()
+      const result = await toyCollection.find().limit(20).toArray()
       res.send(result);
+    })
+
+    app.get('/toy/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await toyCollection.findOne(query)
+      res.send(result)
     })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
