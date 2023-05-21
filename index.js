@@ -41,7 +41,23 @@ async function run() {
 
 // database and collection created 
     const toyCollection = client.db('toyHouseDB').collection("toyInfo");
+
+    // creating index on toyName field 
+    const indexKey = {toyName: 1};
+    const indexOptions = {name : 'toy'};
+// Index created 
+    const result = await toyCollection.createIndex(indexKey, indexOptions)
     // data inserted into database from client side 
+
+    app.get("/searchByToyName/:text", async(req,res) => {
+      const searchText = req.params.text;
+      const result = await toyCollection.find({
+        $or: [
+          {toyName: {$regex: searchText, $options: 'i'}}
+        ],
+      }).toArray()
+      res.send(result)
+    })
     app.post('/addtoys', async(req, res) => {
       const toys = req.body;
       const result = await toyCollection.insertOne(toys);
