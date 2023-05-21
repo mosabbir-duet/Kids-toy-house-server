@@ -47,8 +47,8 @@ async function run() {
     const indexOptions = {name : 'toy'};
 // Index created 
     const result = await toyCollection.createIndex(indexKey, indexOptions)
-    // data inserted into database from client side 
-
+    
+// data search method 
     app.get("/searchByToyName/:text", async(req,res) => {
       const searchText = req.params.text;
       const result = await toyCollection.find({
@@ -58,6 +58,8 @@ async function run() {
       }).toArray()
       res.send(result)
     })
+
+    // data inserted into database from client side 
     app.post('/addtoys', async(req, res) => {
       const toys = req.body;
       const result = await toyCollection.insertOne(toys);
@@ -75,6 +77,16 @@ async function run() {
       const id = req.params.id;
       const query = {_id: new ObjectId(id)}
       const result = await toyCollection.findOne(query)
+      res.send(result)
+    })
+
+    app.get('/mytoys', async(req, res) => {
+      // const userEmail =req.params.email;
+      let query = {}
+      if(req.query?.email) {
+        query = {sellerEmail: req.query.email}
+      }
+      const result = await toyCollection.find(query).toArray()
       res.send(result)
     })
     // Send a ping to confirm a successful connection
