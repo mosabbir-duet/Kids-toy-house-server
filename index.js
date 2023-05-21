@@ -79,7 +79,7 @@ async function run() {
       const result = await toyCollection.findOne(query)
       res.send(result)
     })
-
+// data fetch depend on email 
     app.get('/mytoys', async(req, res) => {
       // const userEmail =req.params.email;
       let query = {}
@@ -87,6 +87,15 @@ async function run() {
         query = {sellerEmail: req.query.email}
       }
       const result = await toyCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    // data delete 
+
+    app.delete('/:id', async(req,res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await toyCollection.deleteOne(query)
       res.send(result)
     })
     // Send a ping to confirm a successful connection
