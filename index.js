@@ -6,14 +6,22 @@ require('dotenv').config()
 const port = process.env.PORT || 3000;
 
 // middleware 
-app.use(cors());
+// app.use(cors());
 
-app.use(function(req, res, next) {
-   res.header("Access-Control-Allow-Origin", "*");
-   res.header('Access-Control-Allow-Methods', 'DELETE, PUT, GET, POST');
-   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-   next();
-});
+// app.use(function(req, res, next) {
+//    res.header("Access-Control-Allow-Origin", "*");
+//    res.header('Access-Control-Allow-Methods', 'DELETE, PUT, GET, POST');
+//    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//    next();
+// });
+const corsOptions ={
+  origin:'*', 
+  credentials:true,
+  optionSuccessStatus:200,
+}
+
+app.use(cors(corsOptions))
+
 app.use(express.json())
 
 app.get('/', (req,res) => {
@@ -79,6 +87,12 @@ async function run() {
       const result = await toyCollection.findOne(query)
       res.send(result)
     })
+    app.get('/update/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await toyCollection.findOne(query)
+      res.send(result)
+    })
 // data fetch depend on email 
     app.get('/mytoys', async(req, res) => {
       // const userEmail =req.params.email;
@@ -97,6 +111,39 @@ async function run() {
       const query = {_id: new ObjectId(id)}
       const result = await toyCollection.deleteOne(query)
       res.send(result)
+    })
+
+    app.get('/alltoys/:text', async(req,res) => {
+      console.log(req.params.text)
+      if(req.params.text == 'Marvel' || req.params.text == 'Star Wars' || req.params.text == 'Transformers') {
+        const result = await toyCollection.find({subCategory: req.params.text}).toArray()
+        res.send(result);
+      }
+    })
+    
+
+    app.put('/:id', async(req,res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)}
+      const options ={upsert: true};
+      const updateToy = req.body;
+      const toy = {
+        $set: {
+          sellerName: updateToy.sellerName,
+          sellerEmail: updateToy.sellerEmail,
+          toyName: updateToy.toyName,
+          toyPrice: updateToy.toyPrice,
+          message: updateToy.message,
+          quantity: updateToy.quantity,
+          subCategory:updateToy.subCategory,
+          ratings: updateToy.ratings,
+          toyImageUrl: updateToy.toyImageUrl
+
+        }
+      }
+      const result = await toyCollection.updateOne(filter,toy,options)
+      res.send(result)
+
     })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
